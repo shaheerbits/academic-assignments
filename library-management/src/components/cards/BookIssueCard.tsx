@@ -16,8 +16,8 @@ const BookIssueCard = ({ issuedBookData }: { issuedBookData: any }) => {
 
   return (
     <article className="flex justify-between py-6 border-b border-purple-200">
-        <div className="w-1/4"><span className="font-semibold">Book Title:</span> {issuedBookData.bookTitle}</div>
         <div className="w-1/4"><span className="font-semibold">Issued To:</span> {issuedBookData.studentName}</div>
+        <div className="w-1/4"><span className="font-semibold">Book Title:</span> {issuedBookData.bookTitle}</div>
         <div className="w-1/4"><span className="font-semibold">Issue Date:</span> {issuedBookData.date}</div>
         <div className="w-1/4 underline text-zinc-500 cursor-pointer" onClick={HandleReturn}>Return</div>
     </article>

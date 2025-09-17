@@ -1,5 +1,4 @@
-// import { useEffect, useState } from "react"
-import CurrentDate from "./components/currentDate"
+import CurrentDate from "./components/CurrentDate"
 import TimeDiary from "./components/TimeDiary"
 
 const App = () => {
