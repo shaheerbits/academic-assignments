@@ -1,6 +1,6 @@
 import express from 'express';
 import { config } from 'dotenv';
-import path from 'path';
+import cors from 'cors';
 // Database connection
 import connectDB from './db/connection.js';
 // Routes
@@ -16,12 +16,13 @@ config();
 const app = express();
 
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static("uploads"));
+app.use(cors());
 
 connectDB();
 
-const uploadFileEndpoint = "/upload-file";
-const downloadFileEndpoint = "/download-file/:filename";
+const uploadFileEndpoint = "/api/upload-file";
+const downloadFileEndpoint = "/api/download-file/:filename";
 
 
 // Routers
@@ -33,7 +34,7 @@ app.use('/api/comments', commentRouter);
 app.post(uploadFileEndpoint, uploadFile);
 app.get(downloadFileEndpoint, downloadFile);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

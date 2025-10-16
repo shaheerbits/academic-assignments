@@ -1,7 +1,7 @@
 import path from "path";
 import { uploadMulterFile, storagePath } from "../middlewares/multer.middleware.js";
 
-const uploadFile = (req, res) => {
+export const uploadFile = (req, res) => {
   uploadMulterFile(req, res, (error) => {
     if (error) {
       console.error(error);
@@ -10,14 +10,16 @@ const uploadFile = (req, res) => {
 
     const filename = req?.file?.filename;
 
-    res.status(200).json({
-      message: "File uploaded successfully",
-      filename,
+    res.json({
+      success: 1,
+      file: {
+        url: `http://localhost:3000/api/download-file/${filename}`
+      }
     });
   });
 };
 
-const downloadFile = (req, res) => {
+export const downloadFile = (req, res) => {
   const { filename } = req.params;
   const filePath = path.join(storagePath, filename);
 
@@ -25,5 +27,3 @@ const downloadFile = (req, res) => {
     if (error) res.status(404).json({ error: "File not found" });
   });
 };
-
-module.exports = { uploadFile, downloadFile };

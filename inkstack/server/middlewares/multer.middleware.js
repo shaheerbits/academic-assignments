@@ -1,9 +1,11 @@
 import multer from "multer";
-import path from 'path';
+// import path from 'path';
+
+export const storagePath = 'uploads';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(path.resolve(__dirname, ".."), 'uploads'));
+    cb(null, storagePath);
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);
@@ -20,4 +22,4 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage: storage, fileFilter: fileFilter });
 
-export default upload;
+export const uploadMulterFile = upload.single("image");

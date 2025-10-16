@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getUserById, updateUserById, uploadProfilePicture } from "../controllers/user.controller.js";
+import { getBlogsByUserId, getUserById, updateUserById, uploadProfilePicture } from "../controllers/user.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const userRouter = Router();
