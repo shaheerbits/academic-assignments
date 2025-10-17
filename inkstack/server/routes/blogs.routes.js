@@ -14,8 +14,8 @@ const blogRouter = Router();
 blogRouter.post("/create", authMiddleware, createBlog);
 blogRouter.get("/", getAllBlogs);
 blogRouter.get("/:id", getBlogById);
-blogRouter.put("/:id", updateBlog);
-blogRouter.delete("/:id", deleteBlog);
+blogRouter.put("/:id", authMiddleware, updateBlog);
+blogRouter.delete("/:id", authMiddleware, deleteBlog);
 blogRouter.get("/user/:userId", getBlogsByUser);
 
 export default blogRouter;

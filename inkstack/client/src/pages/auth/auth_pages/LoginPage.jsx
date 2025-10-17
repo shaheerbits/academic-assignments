@@ -30,7 +30,8 @@ const LoginPage = () => {
     console.log("Login Response:", response.data);
 
     localStorage.setItem("token", response.data.token);
-    localStorage.setItem("user", JSON.stringify(response.data.user));
+  localStorage.setItem("user", JSON.stringify(response.data.user));
+  try { window.dispatchEvent(new CustomEvent('user-updated')) } catch(e){}
 
     showToast("Login successful!", "default", 3000);
 

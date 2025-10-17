@@ -6,7 +6,7 @@ const InputField = ({ type, placeholder, value, onChangeHandler }) => {
         placeholder={placeholder}
         value={value}
         onChange={onChangeHandler}
-        className="bg-accent--ink p-3 rounded-md w-full outline-0 focus:ring-2 focus:ring-zinc-700 transition"
+        className="bg-zinc-200 p-3 rounded-md w-full outline-0 focus:ring-2 focus:ring-zinc-300 transition"
         required
       />
     </div>

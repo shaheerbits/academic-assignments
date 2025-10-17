@@ -35,7 +35,7 @@ export const getAllBlogs = async (req, res) => {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .populate("author", "name email"),
+                .populate("author", "name username profilePic"),
             Blog.countDocuments(),
         ]);
 
@@ -54,9 +54,13 @@ export const getBlogById = async (req, res) => {
             id,
             { $inc: { views: 1 } },
             { new: true }
-        ).populate("author", "name email");
+    ).populate("author", "name username profilePic");
+
+        console.log(blog)
 
         if (!blog) return res.status(404).json({ message: "Blog not found" });
+
+        console.log(blog)
 
         return res.json({ blog });
     } catch (error) {
@@ -88,10 +92,9 @@ export const updateBlog = async (req, res) => {
     }
 };
 
-// Delete a blog (only author)
 export const deleteBlog = async (req, res) => {
     const { id } = req.params;
-    const authorId = req.user && req.user._id;
+    const authorId = req._id;
 
     try {
         const blog = await Blog.findById(id);
@@ -99,8 +102,8 @@ export const deleteBlog = async (req, res) => {
         if (String(blog.author) !== String(authorId))
             return res.status(403).json({ message: "Forbidden" });
 
-        await blog.remove();
-        return res.json({ message: "Blog deleted" });
+    await Blog.findByIdAndDelete(id);
+    return res.json({ message: "Blog deleted" });
     } catch (error) {
         console.error("deleteBlog error:", error);
         return res.status(500).json({ message: "Server error" });

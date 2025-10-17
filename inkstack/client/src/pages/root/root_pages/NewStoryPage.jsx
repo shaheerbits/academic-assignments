@@ -3,6 +3,8 @@ import EditorJS from "@editorjs/editorjs";
 import Header from "@editorjs/header";
 import List from "@editorjs/list";
 import ImageTool from "@editorjs/image";
+import Code from "@editorjs/code";
+import Quote from "@editorjs/quote";
 import showToast from "../../../utils/showToast";
 import fetcherClient from "../../../utils/fetcherClient";
 import { useNavigate } from "react-router-dom";
@@ -12,16 +14,16 @@ const NewStoryPage = () => {
   const [title, setTitle] = useState("");
   const [bannerFile, setBannerFile] = useState(null);
   const [bannerPreview, setBannerPreview] = useState("");
+  const [bannerLocalPreview, setBannerLocalPreview] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const editor = new EditorJS({
-      holder: "editorjs",
-      autofocus: true,
-      placeholder: "Start writing your story...",
-      tools: {
+    let mounted = true;
+
+    const initEditor = async () => {
+      const tools = {
         header: Header,
         list: List,
         image: {
@@ -34,28 +36,49 @@ const NewStoryPage = () => {
             field: "image",
           },
         },
-      },
-    });
+        code: Code,
+        quote: {
+          class: Quote,
+          inlineToolbar: true,
+        },
+      };
 
-    editorRef.current = editor;
+      if (!mounted) return;
+
+      const editor = new EditorJS({
+        holder: "editorjs",
+        autofocus: true,
+        placeholder: "Start writing your story...",
+        tools,
+      });
+
+      editorRef.current = editor;
+    };
+
+    initEditor();
 
     return () => {
-      editor.isReady
-        .then(() => editor.destroy())
-        .catch((err) => console.error("EditorJS cleanup failed:", err));
+      mounted = false;
+      try {
+        if (editorRef.current?.isReady) {
+          editorRef.current.isReady
+            .then(() => editorRef.current.destroy())
+            .catch((err) => console.error("EditorJS cleanup failed:", err));
+        }
+      } catch (err) {
+        console.error("Error during editor cleanup:", err);
+      }
+
+      if (bannerLocalPreview) URL.revokeObjectURL(bannerLocalPreview);
     };
   }, []);
 
   const handlePublish = async () => {
     try {
       const output = await editorRef.current.save();
-      console.log(output);
 
       const token = localStorage.getItem("token");
 
-      console.log(token);
-
-      // Ensure banner image URL (if any) is included
       const body = { title, content: JSON.stringify(output) };
       if (bannerUrl) body.bannerImage = bannerUrl;
 
@@ -75,12 +98,14 @@ const NewStoryPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // preview locally
+    try {
+      if (bannerLocalPreview) URL.revokeObjectURL(bannerLocalPreview);
+    } catch {}
     const previewUrl = URL.createObjectURL(file);
     setBannerFile(file);
     setBannerPreview(previewUrl);
+    setBannerLocalPreview(previewUrl);
 
-    // upload to server
     const token = localStorage.getItem("token");
     if (!token) {
       showToast("You must be logged in to upload images", "error");
@@ -92,18 +117,12 @@ const NewStoryPage = () => {
 
     try {
       setUploading(true);
-      const res = await fetch("http://localhost:3000/api/upload-file", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
+      const res = await fetcherClient.post(`/upload-file`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      const data = await res.json();
-      if (!res.ok || !data?.file?.url) {
-        throw new Error(data?.error || "Upload failed");
-      }
+      const data = res.data;
+      if (!data?.file?.url) throw new Error("Upload failed");
 
       setBannerUrl(data.file.url);
       showToast("Banner uploaded", "success");
